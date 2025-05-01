@@ -305,8 +305,15 @@ static CDVWKInAppBrowser* instance = nil;
 
 - (void)openInSystem:(NSURL*)url
 {
+    if (![[UIApplication sharedApplication] canOpenURL:url]) {
+        NSLog(@"[InAppBrowser] Cannot open URL in system: %@", url.absoluteString);
+        [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:CDVPluginHandleOpenURLNotification object:url]];
+        return;
+    }
+
     [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:^(BOOL success) {
         if (!success) {
+            NSLog(@"[InAppBrowser] Failed to open URL: %@", url.absoluteString);
             [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:CDVPluginHandleOpenURLNotification object:url]];
         }
     }];
