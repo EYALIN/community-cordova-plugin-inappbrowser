@@ -1,109 +1,180 @@
-// Type definitions for Apache Cordova InAppBrowser plugin
-// Project: https://github.com/apache/cordova-plugin-inappbrowser
-// Definitions by: Microsoft Open Technologies Inc <http://msopentech.com>
-// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
-//
-// Copyright (c) Microsoft Open Technologies Inc
-// Licensed under the MIT license.
-// TypeScript Version: 2.3
-type channel = "loadstart" | "loadstop" | "loaderror" | "exit" | "message" | "customscheme";
+/*
+ * Licensed under MIT License
+ */
 
 /**
- * The object returned from a call to cordova.InAppBrowser.open.
- * NOTE: The InAppBrowser window behaves like a standard web browser, and can't access Cordova APIs.
+ * Event channel types
  */
-interface InAppBrowser {
+export type InAppBrowserEventType = 'loadstart' | 'loadstop' | 'loaderror' | 'exit' | 'message' | 'customscheme' | 'beforeload' | 'download';
 
-    /**
-     * Opens a URL in a new InAppBrowser instance, the current browser instance, or the system browser.
-     * @param  url     The URL to load.
-     * @param  target  The target in which to load the URL, an optional parameter that defaults to _self.
-     * @param  options Options for the InAppBrowser. Optional, defaulting to: location=yes.
-     *                 The options string must not contain any blank space, and each feature's
-     *                 name/value pairs must be separated by a comma. Feature names are case insensitive.
-     */
-    open(url: string, target?: string, options?: string): InAppBrowser;
-
-    onloadstart(type: Event): void;
-    onloadstop(type: InAppBrowserEvent): void;
-    onloaderror(type: InAppBrowserEvent): void;
-    onexit(type: InAppBrowserEvent): void;
-    // addEventListener overloads
-    /**
-     * Adds a listener for an event from the InAppBrowser.
-     * @param type      loadstart: event fires when the InAppBrowser starts to load a URL.
-     *                  loadstop: event fires when the InAppBrowser finishes loading a URL.
-     *                  loaderror: event fires when the InAppBrowser encounters an error when loading a URL.
-     *                  exit: event fires when the InAppBrowser window is closed.
-     * @param callback  the function that executes when the event fires. The function is
-     *                  passed an InAppBrowserEvent object as a parameter.
-     */
-    addEventListener(type: channel, callback: InAppBrowserEventListenerOrEventListenerObject): void;
-    /**
-     * Adds a listener for an event from the InAppBrowser.
-     * @param type      any custom event that might occur.
-     * @param callback  the function that executes when the event fires. The function is
-     *                  passed an InAppBrowserEvent object as a parameter.
-     */
-    addEventListener(type: string, callback: InAppBrowserEventListenerOrEventListenerObject): void;
-    // removeEventListener overloads
-    /**
-     * Removes a listener for an event from the InAppBrowser.
-     * @param type      The event to stop listening for.
-     *                  loadstart: event fires when the InAppBrowser starts to load a URL.
-     *                  loadstop: event fires when the InAppBrowser finishes loading a URL.
-     *                  loaderror: event fires when the InAppBrowser encounters an error when loading a URL.
-     *                  exit: event fires when the InAppBrowser window is closed.
-     * @param callback  the function that executes when the event fires. The function is
-     *                  passed an InAppBrowserEvent object as a parameter.
-     */
-    removeEventListener(type: channel, callback: InAppBrowserEventListenerOrEventListenerObject): void;
-    /** Closes the InAppBrowser window. */
-    close(): void;
-    /** Hides the InAppBrowser window. Calling this has no effect if the InAppBrowser was already hidden. */
-    hide(): void;
-    /**
-     * Displays an InAppBrowser window that was opened hidden. Calling this has no effect
-     * if the InAppBrowser was already visible.
-     */
-    show(): void;
-    /**
-     * Injects JavaScript code into the InAppBrowser window.
-     * @param script    Details of the script to run, specifying either a file or code key.
-     * @param callback  The function that executes after the JavaScript code is injected.
-     *                  If the injected script is of type code, the callback executes with
-     *                  a single parameter, which is the return value of the script, wrapped in an Array.
-     *                  For multi-line scripts, this is the return value of the last statement,
-     *                  or the last expression evaluated.
-     */
-    executeScript(script: { code: string } | { file: string }, callback: (result: any) => void): void;
-    /**
-     * Injects CSS into the InAppBrowser window.
-     * @param css       Details of the script to run, specifying either a file or code key.
-     * @param callback  The function that executes after the CSS is injected.
-     */
-    insertCSS(css: { code: string } | { file: string }, callback: () => void): void;
-}
-
-type InAppBrowserEventListenerOrEventListenerObject = InAppBrowserEventListener | InAppBrowserEventListenerObject;
-
-type InAppBrowserEventListener = (evt: InAppBrowserEvent) => void;
-
-interface InAppBrowserEventListenerObject {
-    handleEvent(evt: InAppBrowserEvent): void;
-}
-
-interface InAppBrowserEvent extends Event {
-    /** the eventname, either loadstart, loadstop, loaderror, or exit. */
-    type: string;
-    /** the URL that was loaded. */
+/**
+ * InAppBrowser event object
+ */
+export interface IInAppBrowserEvent {
+    /** The event name */
+    type: InAppBrowserEventType;
+    /** The URL that was loaded */
     url: string;
-    /** the error code, only in the case of loaderror. */
-    code: number;
-    /** the error message, only in the case of loaderror. */
-    message: string;
+    /** The error code (only for loaderror) */
+    code?: number;
+    /** The error message (only for loaderror) */
+    message?: string;
+    /** The message data (only for message event) */
+    data?: any;
 }
 
-interface Cordova {
-    InAppBrowser: InAppBrowser;
+/**
+ * Inject details for executeScript and insertCSS
+ */
+export interface IInjectDetails {
+    /** JavaScript or CSS code to inject */
+    code?: string;
+    /** Path to file to inject */
+    file?: string;
+}
+
+/**
+ * Download event data (Android only)
+ */
+export interface IDownloadEvent {
+    /** Always "download" */
+    type: 'download';
+    /** The download URL */
+    url: string;
+    /** User agent of the webview */
+    userAgent: string;
+    /** Content-Disposition header value */
+    contentDisposition: string;
+    /** File size (0 if unknown) */
+    contentLength: number;
+    /** MIME type of the file */
+    mimetype: string;
+}
+
+/**
+ * InAppBrowser window options
+ */
+export interface IInAppBrowserOptions {
+    /** Show location bar (yes/no) */
+    location?: 'yes' | 'no';
+    /** Create hidden browser (yes/no) */
+    hidden?: 'yes' | 'no';
+    /** Enable beforeload event (get/post/yes) */
+    beforeload?: 'get' | 'post' | 'yes';
+    /** Clear browser cookie cache (yes/no) */
+    clearcache?: 'yes' | 'no';
+    /** Clear session cookie cache (yes/no) */
+    clearsessioncache?: 'yes' | 'no';
+    /** Clear all local storage (yes/no) - iOS only */
+    cleardata?: 'yes' | 'no';
+    /** Close button caption */
+    closebuttoncaption?: string;
+    /** Close button color (hex) */
+    closebuttoncolor?: string;
+    /** Show footer with close button (yes/no) - Android only */
+    footer?: 'yes' | 'no';
+    /** Footer color (hex) - Android only */
+    footercolor?: string;
+    /** Use hardware back for navigation (yes/no) - Android only */
+    hardwareback?: 'yes' | 'no';
+    /** Hide navigation buttons (yes/no) */
+    hidenavigationbuttons?: 'yes' | 'no';
+    /** Hide URL bar (yes/no) - Android only */
+    hideurlbar?: 'yes' | 'no';
+    /** Navigation button color (hex) */
+    navigationbuttoncolor?: string;
+    /** Toolbar color (hex) */
+    toolbarcolor?: string;
+    /** Swap navigation and close button positions (yes/no) */
+    lefttoright?: 'yes' | 'no';
+    /** Show zoom controls (yes/no) - Android only */
+    zoom?: 'yes' | 'no';
+    /** Require user action for media playback (yes/no) */
+    mediaPlaybackRequiresUserAction?: 'yes' | 'no';
+    /** Pause on app suspend (yes/no) - Android only */
+    shouldPauseOnSuspend?: 'yes' | 'no';
+    /** Use wide viewport (yes/no) - Android only */
+    useWideViewPort?: 'yes' | 'no';
+    /** Display fullscreen (yes/no) - Android only */
+    fullscreen?: 'yes' | 'no';
+    /** Disable overscroll bounce (yes/no) - iOS only */
+    disallowoverscroll?: 'yes' | 'no';
+    /** Show toolbar (yes/no) - iOS only */
+    toolbar?: 'yes' | 'no';
+    /** Make toolbar translucent (yes/no) - iOS only */
+    toolbartranslucent?: 'yes' | 'no';
+    /** Enable viewport scaling (yes/no) - iOS only */
+    enableViewportScale?: 'yes' | 'no';
+    /** Allow inline media playback (yes/no) - iOS only */
+    allowInlineMediaPlayback?: 'yes' | 'no';
+    /** Presentation style - iOS only */
+    presentationstyle?: 'pagesheet' | 'formsheet' | 'fullscreen';
+    /** Transition style - iOS only */
+    transitionstyle?: 'fliphorizontal' | 'crossdissolve' | 'coververtical';
+    /** Toolbar position - iOS only */
+    toolbarposition?: 'top' | 'bottom';
+    /** Hide loading spinner (yes/no) - iOS only */
+    hidespinner?: 'yes' | 'no';
+}
+
+/**
+ * Event callbacks object
+ */
+export interface IInAppBrowserCallbacks {
+    loadstart?: (event: IInAppBrowserEvent) => void;
+    loadstop?: (event: IInAppBrowserEvent) => void;
+    loaderror?: (event: IInAppBrowserEvent) => void;
+    exit?: (event: IInAppBrowserEvent) => void;
+    message?: (event: IInAppBrowserEvent) => void;
+    customscheme?: (event: IInAppBrowserEvent) => void;
+    beforeload?: (event: IInAppBrowserEvent, callback: (url: string) => void) => void;
+    download?: (event: IDownloadEvent) => void;
+}
+
+/**
+ * InAppBrowser window instance
+ */
+export interface IInAppBrowserInstance {
+    /** Close the browser window */
+    close(): void;
+    /** Show the browser window */
+    show(): void;
+    /** Hide the browser window */
+    hide(): void;
+    /** Add an event listener */
+    addEventListener(eventname: InAppBrowserEventType, callback: (event: IInAppBrowserEvent) => void): void;
+    /** Remove an event listener */
+    removeEventListener(eventname: InAppBrowserEventType, callback: (event: IInAppBrowserEvent) => void): void;
+    /** Execute JavaScript code in the browser */
+    executeScript(details: IInjectDetails, callback?: (result: any[]) => void): void;
+    /** Insert CSS into the browser */
+    insertCSS(details: IInjectDetails, callback?: () => void): void;
+    /** Add download listener (Android only) */
+    addDownloadListener(success: (event: IDownloadEvent) => void, error?: (err: any) => void): void;
+}
+
+/**
+ * InAppBrowser Manager class for TypeScript usage
+ */
+export default class InAppBrowserManager {
+    /**
+     * Open a URL in the InAppBrowser
+     * @param url - The URL to load
+     * @param target - The target window (_self, _blank, _system)
+     * @param options - Browser options string or object
+     * @param callbacks - Event callbacks
+     * @returns InAppBrowser instance
+     */
+    open(url: string, target?: '_self' | '_blank' | '_system' | string, options?: string, callbacks?: IInAppBrowserCallbacks): IInAppBrowserInstance;
+}
+
+/**
+ * Global cordova declaration
+ */
+declare global {
+    interface Window {
+        InAppBrowserPlugin: {
+            open(url: string, target?: string, options?: string, callbacks?: IInAppBrowserCallbacks): IInAppBrowserInstance;
+        };
+    }
 }
