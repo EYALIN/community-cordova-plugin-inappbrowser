@@ -156,7 +156,7 @@ export interface IInAppBrowserInstance {
 /**
  * InAppBrowser Manager class for TypeScript usage
  */
-export default class InAppBrowserManager {
+export declare class InAppBrowserManager {
     /**
      * Open a URL in the InAppBrowser
      * @param url - The URL to load
@@ -168,13 +168,7 @@ export default class InAppBrowserManager {
     open(url: string, target?: '_self' | '_blank' | '_system' | string, options?: string, callbacks?: IInAppBrowserCallbacks): IInAppBrowserInstance;
 }
 
-/**
- * Global cordova declaration
- */
+// For global access (same pattern as other community plugins)
 declare global {
-    interface Window {
-        InAppBrowserPlugin: {
-            open(url: string, target?: string, options?: string, callbacks?: IInAppBrowserCallbacks): IInAppBrowserInstance;
-        };
-    }
+    const InAppBrowserPlugin: InAppBrowserManager;
 }

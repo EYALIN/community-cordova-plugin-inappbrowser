@@ -15,7 +15,7 @@
 
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
       id="community-cordova-plugin-inappbrowser"
-      version="1.0.0">
+      version="1.0.1">
     <name>InAppBrowser</name>
     <description>Community Cordova InAppBrowser Plugin</description>
     <license>MIT</license>
