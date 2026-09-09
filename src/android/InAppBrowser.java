@@ -767,9 +767,20 @@ public class InAppBrowser extends CordovaPlugin {
             public void run() {
 
                 // CB-6702 InAppBrowser hangs when opening more than one instance
+                // Dismissing a dialog whose activity is already gone throws
+                // IllegalArgumentException("View=DecorView@... not attached to window manager").
+                // Mirror the isFinishing() guard used in the about:blank dismiss above, and keep a
+                // try/catch because the activity can finish between the check and the dismiss.
                 if (dialog != null) {
-                    dialog.dismiss();
-                };
+                    try {
+                        if (dialog.isShowing() && !cordova.getActivity().isFinishing()) {
+                            dialog.dismiss();
+                        }
+                    } catch (Exception e) {
+                        LOG.w(LOG_TAG, "Failed to dismiss previous InAppBrowser dialog", e);
+                    }
+                    dialog = null;
+                }
 
                 // Let's create the main dialog
                 dialog = new InAppBrowserDialog(cordova.getActivity(), android.R.style.Theme_NoTitleBar);
